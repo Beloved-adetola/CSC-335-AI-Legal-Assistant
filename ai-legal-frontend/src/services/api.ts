@@ -1,6 +1,6 @@
 import type { User } from "firebase/auth";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const API_BASE_URL = "https://csc-335-backend.onrender.com";
 
 /**
  * Get Firebase auth token for the current user
