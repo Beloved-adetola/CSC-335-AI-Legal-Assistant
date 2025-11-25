@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(cuid())
+  firebaseUid    String         @unique
+  email          String?        @unique
+  name           String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  conversations  Conversation[] 
+  feedbacks      Feedback[]
+  documents      Document[]
+}
+
+model Conversation {
+  id          String    @id @default(cuid())
+  title       String?
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  feedbacks   Feedback[]
+}
+
+model Message {
+  id              String       @id @default(cuid())
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  conversationId  String
+  role            String       // "user" | "assistant" | "system"
+  content         String       @db.Text
+  tokenCount      Int?         // optional if you track tokens for cost
+  createdAt       DateTime     @default(now())
+}
+
+model Document {
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  title         String
+  text          String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Feedback {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  conversation Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId String?
+  rating      Int?
+  comment     String?  @db.Text
+  createdAt   DateTime @default(now())
+}
