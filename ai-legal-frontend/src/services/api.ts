@@ -1,6 +1,6 @@
 import type { User } from "firebase/auth";
 
-const API_BASE_URL = "https://csc-335-backend.onrender.com";
+const API_BASE_URL = "https://csc-335-backend.onrender.com/api";
 
 /**
  * Get Firebase auth token for the current user
