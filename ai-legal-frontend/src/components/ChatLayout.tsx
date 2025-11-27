@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, UserRound } from "lucide-react";
+import { Loader, LogOut, Scale, UserRound } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { Auth } from "@/config/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +59,7 @@ export const ChatLayout = () => {
         <p className="text-sm text-muted-foreground">
           Loading your workspace...
         </p>
+        <Loader/>
       </div>
     );
   }
@@ -112,7 +113,7 @@ export const ChatLayout = () => {
             {isMobile && (
               <ChatSidebarTrigger onClick={() => setSidebarOpen(true)} />
             )}
-            <h1 className="text-lg font-semibold">LegalAI Assistant</h1>
+            <h1 className="text-lg font-semibold flex items-center gap-2"><Scale className="h-8 w-8 font-bold text-primary" />LegaLens</h1>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

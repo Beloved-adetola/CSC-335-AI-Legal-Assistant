@@ -15,6 +15,7 @@ import {
   Thermometer,
   Scale,
   Sidebar,
+  Loader,
 } from "lucide-react";
 import { format, isToday, isYesterday, formatDistanceToNow } from "date-fns";
 import {
@@ -152,8 +153,7 @@ export const ChatSidebar = ({ user, onClose }: ChatSidebarProps) => {
       <div className="flex m-2 mb-5 justify-between items-center font-bold text-primary">
         <Link to={"/"} className="p-1 hover:bg-gray-300 rounded-md">
           <Scale className="h-8 w-8" />
-        </Link>{" "}
-        <Sidebar />
+        </Link>
       </div>
       {/* New Chat Button */}
       <div className="p-2 border-b border-border">
@@ -173,6 +173,7 @@ export const ChatSidebar = ({ user, onClose }: ChatSidebarProps) => {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-4">
               <p className="text-sm text-muted-foreground">Loading conversations...</p>
+              <Loader/>
             </div>
           ) : conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-4">
