@@ -3,11 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User } from "lucide-react";
-import {
-  getConversation,
-  type Message,
-} from "@/services/chatHistory";
+import { Send, Bot, User, Speaker } from "lucide-react";
+import { getConversation, type Message } from "@/services/chatHistory";
 import { assistantApi } from "@/services/api";
 import type { User as FirebaseUser } from "firebase/auth";
 
@@ -15,7 +12,7 @@ const initialMessage: Message = {
   id: "1",
   role: "assistant",
   content:
-    "Hello! I'm LegaLens, your AI legal assistant. I can help you with legal research, contract analysis, and answering legal questions. How can I assist you today?",
+    "Hello! I'm Justivity, your AI legal assistant. I can help you with legal research, contract analysis, and answering legal questions. How can I assist you today?",
 };
 
 interface ChatInterfaceProps {
@@ -40,7 +37,11 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
         .then((conversation) => {
           if (conversation) {
             conversationIdRef.current = conversation.id;
-            setMessages(conversation.messages.length > 0 ? conversation.messages : [initialMessage]);
+            setMessages(
+              conversation.messages.length > 0
+                ? conversation.messages
+                : [initialMessage]
+            );
             return;
           }
 
@@ -107,7 +108,9 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
         conversationIdRef.current = response.conversationId;
         // Update URL to include conversation ID if not already set
         if (!searchParams.get("conversation")) {
-          navigate(`/home?conversation=${response.conversationId}`, { replace: true });
+          navigate(`/home?conversation=${response.conversationId}`, {
+            replace: true,
+          });
         }
       }
 
@@ -123,24 +126,37 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
       setMessages(updatedMessages);
 
       // Dispatch event to refresh sidebar
-      window.dispatchEvent(new CustomEvent("chatHistoryUpdated", { detail: { userId: user.uid } }));
+      window.dispatchEvent(
+        new CustomEvent("chatHistoryUpdated", { detail: { userId: user.uid } })
+      );
     } catch (error) {
       console.error("Failed to send message:", error);
-      
+
       // Remove the optimistically added user message on error
       setMessages(messages);
       setInput(questionText);
-      
+
       // Show error message to user
       const errorMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
-        content: "Sorry, I encountered an error processing your request. Please try again.",
+        content:
+          "Sorry, I encountered an error processing your request. Please try again.",
         timestamp: Date.now(),
       };
       setMessages([...messages, errorMessage]);
     }
   };
+
+  //Read Aloud
+  function readAloud(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1; // speed
+    utterance.pitch = 1; // tone
+    utterance.volume = 1; // loudness
+    utterance.lang = "en-US"; // voice language
+    speechSynthesis.speak(utterance);
+  }
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -152,7 +168,7 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
             <div className="flex items-center justify-center min-h-[60vh] mb-8">
               <div className="text-center max-w-2xl">
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                  LegaLens
+                Justivity
                 </h1>
                 <p className="text-lg text-muted-foreground">
                   Get instant AI-powered legal insights and guidance. Ask me
@@ -172,16 +188,22 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
                 }`}
               >
                 <div
-                  className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                  className={`flex-shrink-0  rounded-full flex items-center justify-center ${
                     message.role === "user"
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-primary text-primary-foreground"
+                      ? "bg-accent text-accent-foreground w-10 h-10"
+                      : " text-primary-foreground"
                   }`}
                 >
                   {message.role === "user" ? (
                     <User className="w-5 h-5" />
                   ) : (
-                    <Bot className="w-5 h-5" />
+                    <div className="flex flex-col gap-4">
+                      <Bot className="w-5 h-5 bg-primary" />
+                      <Speaker
+                        className="w-5 h-5 text-black bg-gray-400 cursor-pointer"
+                        onClick={() => readAloud(message.content)}
+                      />
+                    </div>
                   )}
                 </div>
                 <div

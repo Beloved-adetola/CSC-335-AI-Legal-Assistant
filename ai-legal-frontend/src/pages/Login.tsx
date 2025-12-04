@@ -78,7 +78,7 @@ export default function Login() {
             className="inline-flex items-center gap-2 text-2xl font-bold text-primary hover:text-primary/90 transition-colors"
           >
             <Scale className="h-8 w-8" />
-            LegaLens
+            Justivity
           </Link>
         </div>
 

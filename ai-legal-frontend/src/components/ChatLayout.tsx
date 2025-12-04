@@ -113,7 +113,7 @@ export const ChatLayout = () => {
             {isMobile && (
               <ChatSidebarTrigger onClick={() => setSidebarOpen(true)} />
             )}
-            <h1 className="text-lg font-semibold flex items-center gap-2"><Scale className="h-8 w-8 font-bold text-primary" />LegaLens</h1>
+            <h1 className="text-lg font-semibold flex items-center gap-2"><Scale className="h-8 w-8 font-bold text-primary" />Justivity</h1>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

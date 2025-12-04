@@ -19,7 +19,7 @@ const Hero = () => {
 
           {/* Main heading */}
           <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6 animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
-            LegaLens
+          Justivity
           </h1>
           
           <p className="text-xl md:text-2xl text-primary-foreground/90 mb-12 max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">

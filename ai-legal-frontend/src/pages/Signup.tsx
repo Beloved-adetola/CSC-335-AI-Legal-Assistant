@@ -93,7 +93,7 @@ export default function Signup() {
             className="inline-flex items-center gap-2 text-2xl font-bold text-primary hover:text-primary/90 transition-colors"
           >
             <Scale className="h-8 w-8" />
-            LegaLens
+            Justivity
           </Link>
         </div>
 
@@ -101,7 +101,7 @@ export default function Signup() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Create an account</CardTitle>
             <CardDescription>
-              Enter your details to get started with LegaLens
+              Enter your details to get started with Justivity
             </CardDescription>
           </CardHeader>
           <CardContent>
