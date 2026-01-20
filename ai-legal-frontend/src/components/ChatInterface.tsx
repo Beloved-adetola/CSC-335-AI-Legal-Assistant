@@ -7,6 +7,8 @@ import { Send, Bot, User, Speaker } from "lucide-react";
 import { getConversation, type Message } from "@/services/chatHistory";
 import { assistantApi } from "@/services/api";
 import type { User as FirebaseUser } from "firebase/auth";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const initialMessage: Message = {
   id: "1",
@@ -27,6 +29,8 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
 
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
 
   // Load conversation from history if conversationId is in URL
   useEffect(() => {
@@ -67,7 +71,7 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
     }
   }, [searchParams, user, navigate]);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change or loading state changes
   useEffect(() => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector(
@@ -77,7 +81,7 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleSend = async () => {
     if (!input.trim() || !user) return;
@@ -91,6 +95,8 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
 
     const questionText = input.trim();
     setInput("");
+        setIsLoading(true);
+
 
     // Optimistically add user message
     const newMessages = [...messages, userMessage];
@@ -145,16 +151,30 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
         timestamp: Date.now(),
       };
       setMessages([...messages, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   //Read Aloud
-  function readAloud(text) {
+  function readAloud(text: string, messageId: string) {
+    if (speakingMessageId === messageId) {
+      window.speechSynthesis.cancel();
+      setSpeakingMessageId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1; // speed
     utterance.pitch = 1; // tone
     utterance.volume = 1; // loudness
     utterance.lang = "en-US"; // voice language
+        
+    utterance.onend = () => {
+      setSpeakingMessageId(null);
+    };
+    setSpeakingMessageId(messageId);
     speechSynthesis.speak(utterance);
   }
 
@@ -200,8 +220,10 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
                     <div className="flex flex-col gap-4">
                       <Bot className="w-5 h-5 bg-primary" />
                       <Speaker
-                        className="w-5 h-5 text-black cursor-pointer"
-                        onClick={() => readAloud(message.content)}
+                        className={`w-5 h-5 cursor-pointer ${
+                          speakingMessageId === message.id ? "text-primary animate-pulse" : "text-black"
+                        }`}
+                        onClick={() => readAloud(message.content, message.id)}
                       />
                     </div>
                   )}
@@ -213,10 +235,45 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
                       : "bg-card text-card-foreground border border-border"
                   }`}
                 >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                          p: ({children}) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                          a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" {...props} />,
+                          ul: ({children}) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                          li: ({children}) => <li className="mb-1">{children}</li>,
+                          h1: ({children}) => <h1 className="text-xl font-bold mb-2 mt-4 first:mt-0">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-base font-bold mb-2 mt-2">{children}</h3>,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-primary/30 pl-4 italic my-2">{children}</blockquote>,
+                          code: ({children}) => <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+                          pre: ({children}) => <pre className="bg-muted p-3 rounded-lg overflow-x-auto my-2 text-sm font-mono">{children}</pre>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}
+            
+            {/* Loading Indicator */}
+            {isLoading && (
+              <div className="flex gap-4 flex-row">
+                <div className="flex-shrink-0 rounded-full flex items-center justify-center text-primary-foreground">
+                    <Bot className="w-5 h-5 bg-primary" />
+                </div>
+                <div className="flex-1 rounded-2xl px-5 py-4 max-w-[80%] bg-card text-card-foreground border border-border">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </ScrollArea>
@@ -229,14 +286,15 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
               placeholder="Type your legal question..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSend()}
               className="flex-1 bg-background"
+               disabled={isLoading}
             />
             <Button
               onClick={handleSend}
               size="icon"
               className="bg-primary hover:bg-primary/90 flex-shrink-0"
-              disabled={!input.trim()}
+              disabled={!input.trim() || isLoading}
             >
               <Send className="w-4 h-4" />
             </Button>
