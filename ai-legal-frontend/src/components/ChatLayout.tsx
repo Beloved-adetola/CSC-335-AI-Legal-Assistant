@@ -59,7 +59,7 @@ export const ChatLayout = () => {
         <p className="text-sm text-muted-foreground">
           Loading your workspace...
         </p>
-        <Loader/>
+        <Loader className="animate-spin"/>
       </div>
     );
   }

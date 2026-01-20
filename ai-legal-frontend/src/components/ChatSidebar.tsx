@@ -173,7 +173,7 @@ export const ChatSidebar = ({ user, onClose }: ChatSidebarProps) => {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-4">
               <p className="text-sm text-muted-foreground">Loading conversations...</p>
-              <Loader/>
+              <Loader className="animate-spin"/>
             </div>
           ) : conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-4">

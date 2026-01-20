@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { getChatHistory, deleteConversation, ChatConversation } from "@/services/chatHistory";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Scale, Trash2, MessageSquare, Clock, ArrowLeft } from "lucide-react";
+import { Scale, Trash2, MessageSquare, Clock, ArrowLeft, Loader } from "lucide-react";
 import { format } from "date-fns";
 import {
   AlertDialog,
@@ -73,6 +73,7 @@ export default function ChatHistory() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-sm text-muted-foreground">Loading chat history...</p>
+        <Loader className="animate-spin"/>
       </div>
     );
   }

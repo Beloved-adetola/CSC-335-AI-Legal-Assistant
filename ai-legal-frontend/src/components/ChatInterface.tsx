@@ -200,7 +200,7 @@ const ChatInterface = ({ user }: ChatInterfaceProps) => {
                     <div className="flex flex-col gap-4">
                       <Bot className="w-5 h-5 bg-primary" />
                       <Speaker
-                        className="w-5 h-5 text-black bg-gray-400 cursor-pointer"
+                        className="w-5 h-5 text-black cursor-pointer"
                         onClick={() => readAloud(message.content)}
                       />
                     </div>
